@@ -39,10 +39,6 @@ int main() {
     }
 
     printf("I am assuming success...");
-    // printf("Play Game? (y, n)... ");
-    // PlaySound(TEXT("SongDemo111.wav"), NULL, SND_FILENAME | SND_ASYNC);
-    // Sleep(2000);
-    // scanf("%s", &response);
     return 0;
 }
 
