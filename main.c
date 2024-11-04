@@ -13,7 +13,7 @@ int main() {
     bool start_game = false;
 
     start_logo();
-    PlaySound(TEXT("SongDemo111.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    PlaySound(TEXT("LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     while (!start_game) {
         printf("\nPlay Game? (y, n)... ");
