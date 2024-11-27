@@ -12,8 +12,10 @@ int main() {
     char response[4];
     bool start_game = false;
 
+    MessageBox(0, "continue...", "Lurk", 0); // experimenting with message box
+
     start_logo();
-    PlaySound(TEXT("SongDemo111.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    PlaySound(TEXT("LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     while (!start_game) {
         printf("\nPlay Game? (y, n)... ");
@@ -39,14 +41,11 @@ int main() {
     }
 
     printf("I am assuming success...");
-    // printf("Play Game? (y, n)... ");
-    // PlaySound(TEXT("SongDemo111.wav"), NULL, SND_FILENAME | SND_ASYNC);
-    // Sleep(2000);
-    // scanf("%s", &response);
     return 0;
 }
 
 char start_logo() {
     printf("\n\n    ██▓     █    ██  ██▀███   ██ ▄█▀\n   ▓██▒     ██  ▓██▒▓██ ▒ ██▒ ██▄█▒ \n   ▒██░    ▓██  ▒██░▓██ ░▄█ ▒▓███▄░ \n   ▒██░    ▓▓█  ░██░▒██▀▀█▄  ▓██ █▄ \n   ░██████▒▒▒█████▓ ░██▓ ▒██▒▒██▒ █▄\n   ░ ▒░▓  ░░▒▓▒ ▒ ▒ ░ ▒▓ ░▒▓░▒ ▒▒ ▓▒\n   ░ ░ ▒  ░░░▒░ ░ ░   ░▒ ░ ▒░░ ░▒ ▒░\n   ░ ░    ░░░ ░ ░   ░░   ░ ░ ░░ ░ \n       ░  ░   ░        ░     ░  ░   \n");
+    printf("\n     created by Peyton Pike     \n");
     printf("\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_\n");
 }
