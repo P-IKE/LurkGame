@@ -12,6 +12,8 @@ int main() {
     char response[4];
     bool start_game = false;
 
+    MessageBox(0, "continue...", "Lurk", 0); // experimenting with message box
+
     start_logo();
     PlaySound(TEXT("LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
