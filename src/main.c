@@ -15,7 +15,7 @@ int main() {
     MessageBox(0, "continue...", "Lurk", 0); // experimenting with message box
 
     start_logo();
-    PlaySound(TEXT("LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    PlaySound(TEXT("sfx/LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     while (!start_game) {
         printf("\nPlay Game? (y, n)... ");
