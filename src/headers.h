@@ -2,6 +2,6 @@
 #define HEADER_H
 
 /* std-msg-box */
-int useMessageBox();
+int useMessageBox(char* msgBoxText, char* msgBoxTitle);
 
 #endif

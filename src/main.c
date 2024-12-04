@@ -17,7 +17,8 @@ int main() {
     char response[4];
     bool start_game = false;
 
-    useMessageBox(); /* experimenting with message box, this function comes from std-msg-box.c */
+    // formatted like so: msgBoxText, msgBoxTitle
+    useMessageBox("Just to let you know, this is not the full game. I plan on eventually adding real graphics (probably in a language that is not C) but for now please enjoy the character art!", "Lurk Dev"); /* experimenting with message box, this function comes from std-msg-box.c */
 
     start_logo();
     PlaySound(TEXT("sfx/LurkIntro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
