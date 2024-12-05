@@ -21,24 +21,6 @@ char animatedCave(int frame);
 
 /* FUNCTIONS */
 
-// char getch(void) {
-//     struct termios old = {0};
-//     if (tcgetattr(0, &old) < 0)
-//         perror ("tcsetattr()");
-//     old.c_lflag &= ~ICANON; // Disable canonical mode
-//     old.c_lflag &= ~ECHO;   // Disable echoing typed characters
-//     old.c_cc[VMIN] = 1;     // Minimum number of characters to read
-//     old.c_cc[VTIME] = 0;    // Timeout for reading characters (0 means no timeout)
-//     if (tcsetattr(0, TCSANOW, &old) < 0)
-//         perror ("tcsetattr ICANON");
-
-//     char ch = getchar(); // Get the pressed key
-//     old.c_lflag |= ICANON; // Restore canonical mode
-//     old.c_lflag |= ECHO;   // Enable echoing of typed characters
-//     tcsetattr(0, TCSADRAIN, &old);
-
-//     return ch;
-// }
 char getch(void) {
     struct termios old = {0}, new_settings = {0};
     
