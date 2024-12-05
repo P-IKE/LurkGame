@@ -106,6 +106,7 @@ int main() {
         }
     }
 
+    // cave entrance animation
     PlaySound(TEXT("sfx/DrippyCave.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while(1){
         static int frame = 1;
