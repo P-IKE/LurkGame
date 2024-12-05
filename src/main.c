@@ -17,6 +17,7 @@
 
 /* FUNCTION DECLARATIONS */
 char start_logo();
+char btm_box_ln();
 char animatedCave(int frame);
 
 /* FUNCTIONS */
@@ -95,14 +96,14 @@ int main() {
         system("clear");
         if (frame < 9){
             animatedCave(frame);
-            printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+            btm_box_ln();
             printf("                      you enter a dark, damp cave...                             \n");
             printf("                       ( press 'e' to continue )                                 \n");
             frame += 1;
         } else {
             frame = 1;
             animatedCave(frame);
-            printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+            btm_box_ln();
             printf("                      you enter a dark, damp cave...                             \n");
             printf("                       ( press 'e' to continue )                                 \n");
         }
@@ -115,9 +116,9 @@ int main() {
 
         usleep(100000);
     }
-    // a strange knocking can be heard coming from a door in the cave wall
+    // a strange knocking can be heard coming from a door in the cave
     caveDoor();
-    printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+    btm_box_ln();
     printf("                                    ...                                          \n");
     PlaySound(TEXT("sfx/DoorKnocking1.wav"), NULL, SND_FILENAME | SND_SYNC);
 
@@ -131,6 +132,11 @@ char start_logo() {
     printf("\n     created by Peyton Pike     \n");
     printf("\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_\n");
 }
+// bottom line for screen outline
+char btm_box_ln() {
+    printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+}
+
 
 // ignore the funny blob of code below - although it really is a dripping cave animation
 char animatedCave(int frame){
