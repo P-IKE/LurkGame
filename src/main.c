@@ -1,18 +1,78 @@
 /* HEADERS */
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <windows.h>
 #include <stdbool.h>
 #include <string.h>
+#include <termios.h>
 #include "headers.h"
 
 /*  Compile with gcc main.c -o main -lwinmm  */
 /* -lwinmm (winmm.lib) is the sound library  */
 /* make sure that files are compiled together, example --> gcc main.c std-msg-box.c -o lurkgameexe -lwinmm */
 
+#define COLUMNS = 80
+#define ROWS = 25
+
 /* FUNCTION DECLARATIONS */
 char start_logo();
+char animatedCave(int frame);
 
 /* FUNCTIONS */
+
+// char getch(void) {
+//     struct termios old = {0};
+//     if (tcgetattr(0, &old) < 0)
+//         perror ("tcsetattr()");
+//     old.c_lflag &= ~ICANON; // Disable canonical mode
+//     old.c_lflag &= ~ECHO;   // Disable echoing typed characters
+//     old.c_cc[VMIN] = 1;     // Minimum number of characters to read
+//     old.c_cc[VTIME] = 0;    // Timeout for reading characters (0 means no timeout)
+//     if (tcsetattr(0, TCSANOW, &old) < 0)
+//         perror ("tcsetattr ICANON");
+
+//     char ch = getchar(); // Get the pressed key
+//     old.c_lflag |= ICANON; // Restore canonical mode
+//     old.c_lflag |= ECHO;   // Enable echoing of typed characters
+//     tcsetattr(0, TCSADRAIN, &old);
+
+//     return ch;
+// }
+char getch(void) {
+    struct termios old = {0}, new_settings = {0};
+    
+    // Get the current terminal settings
+    if (tcgetattr(STDIN_FILENO, &old) < 0) {
+        perror("tcgetattr() failed");
+        return -1; // Return an error value
+    }
+
+    // Copy the terminal settings to modify them
+    new_settings = old;
+    new_settings.c_lflag &= ~ICANON;  // Disable canonical mode (no need for pressing Enter)
+    new_settings.c_lflag &= ~ECHO;    // Disable echoing typed characters
+    new_settings.c_cc[VMIN] = 1;      // Minimum number of characters to read
+    new_settings.c_cc[VTIME] = 1;     // No timeout
+    
+    // Set the terminal to the new settings
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_settings) < 0) {
+        perror("tcsetattr() failed");
+        return -1; // Return an error value
+    }
+
+    // Read a character from the terminal
+    char ch = getchar();
+
+    // Restore the old terminal settings (canonical mode and echoing)
+    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &old) < 0) {
+        perror("tcsetattr() failed to restore settings");
+        return -1; // Return an error value
+    }
+
+    return ch;
+}
+
 int main() {
     char response[4];
     bool start_game = false;
@@ -46,6 +106,32 @@ int main() {
         }
     }
 
+    PlaySound(TEXT("sfx/DrippyCave.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    while(1){
+        static int frame = 1;
+        system("clear");
+        if (frame < 9){
+            animatedCave(frame);
+            printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+            printf("                      you enter a dark, damp cave...                             \n");
+            printf("                       ( press 'e' to continue )                                 \n");
+            frame += 1;
+        } else {
+            frame = 1;
+            animatedCave(frame);
+            printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+            printf("                      you enter a dark, damp cave...                             \n");
+            printf("                       ( press 'e' to continue )                                 \n");
+        }
+        char ch = getch();
+        if (ch == 'e') {
+            PlaySound(NULL, NULL, SND_PURGE);
+            system("clear");
+            break;
+        }
+
+        usleep(100000);
+    }
     printf("I am assuming success...");
     return 0;
 }
@@ -55,4 +141,226 @@ char start_logo() {
     printf("\n\n    ██▓     █    ██  ██▀███   ██ ▄█▀\n   ▓██▒     ██  ▓██▒▓██ ▒ ██▒ ██▄█▒ \n   ▒██░    ▓██  ▒██░▓██ ░▄█ ▒▓███▄░ \n   ▒██░    ▓▓█  ░██░▒██▀▀█▄  ▓██ █▄ \n   ░██████▒▒▒█████▓ ░██▓ ▒██▒▒██▒ █▄\n   ░ ▒░▓  ░░▒▓▒ ▒ ▒ ░ ▒▓ ░▒▓░▒ ▒▒ ▓▒\n   ░ ░ ▒  ░░░▒░ ░ ░   ░▒ ░ ▒░░ ░▒ ▒░\n   ░ ░    ░░░ ░ ░   ░░   ░ ░ ░░ ░ \n       ░  ░   ░        ░     ░  ░   \n");
     printf("\n     created by Peyton Pike     \n");
     printf("\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_\n");
+}
+
+// ignore the funny blob of code below - although it really is a dripping cave animation
+char animatedCave(int frame){
+    switch(frame){
+        case 1:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶            X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X                     !              ¶X▒██!\n");
+            printf("!███} @                 1                                                    X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   *                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 2:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     *      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X                     !              ¶X▒██!\n");
+            printf("!███} @                 1                                                    X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   o                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 3:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     o      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !              ¶X▒██!\n");
+            printf("!███} @                 1              ^                                     X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   ^                                                                      X░▒█!\n");
+            printf("!▒▒.  o                                                                      ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 4:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     '      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !     '        ¶X▒██!\n");
+            printf("!███} @                 1              !                                     X░▒█!\n");
+            printf("!█X*  |                 |              0                                     X░▒█!\n");
+            printf("!▒¶   .                                                                      X░▒█!\n");
+            printf("!▒▒.                                                               o         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.   o                                                                      ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 5:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     '      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !              ¶X▒██!\n");
+            printf("!███} @                 1              *                                     X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   .                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶  .                                o                           '          X██!\n");
+            printf("!█.                                                                o          *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░   |                                                                      ░▒██!\n");
+            printf("!█X   *                                                                      ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶. o                                                                      ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 6:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     '      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !              ¶X▒██!\n");
+            printf("!███} @                 1              *                                     X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   *                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                     .                          |         X███!\n");
+            printf("!█X                                     '                          o          X▒█!\n");
+            printf("!▒}                                     o                                    X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                                      ¶▒████!\n");
+            printf("!███▒▒ {/                                                                  ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 7:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     '      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !              ¶X▒██!\n");
+            printf("!███} @                 1              *                                     X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   *                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                '         X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                .         ░▒██!\n");
+            printf("!█X                                                                o         ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                   o                                  ¶▒████!\n");
+            printf("!███▒▒                                                                     ▒█████!\n");
+            printf("!█████▒.                                                                 ▒▒██████!\n");
+            break;
+        case 8:
+            printf("!████████████████████████████████████████████████████████████████████████████████!\n");
+            printf("!█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒*░░░░░░ X░▒▒▒▒▒¶$X░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████!\n");
+            printf("!███▒▒▒¶▒▒▒▒¶X▒▒▒▒▒*XX ░¶1    XXX{░▒▒░¶X   X¶░░░░}XX  ░▒▒▒▒▒▒▒¶ #@*| *X▒▒▒▒██████!\n");
+            printf("!████▒▒¶¶¶X X{▒▒¶       ¶1         XX} ¶               $X    ¶     |     X░▒▒▒███!\n");
+            printf("!███▒█X¶      X¶        X              ¶                     ¶     '      X¶░▒███!\n");
+            printf("!██▒▒█#                 1              X.                    !              ¶X▒██!\n");
+            printf("!███} @                 1              *                                     X░▒█!\n");
+            printf("!█X*  |                 |                                                    X░▒█!\n");
+            printf("!▒¶   *                                                                      X░▒█!\n");
+            printf("!▒▒.                                                                         ░░▒█!\n");
+            printf("!█▒▒                                                                          ▒▒█!\n");
+            printf("!██¶                                                                          X██!\n");
+            printf("!█.                                                                           *▒█!\n");
+            printf("!▒.                                                                          ▒▒██!\n");
+            printf("!▒▒                                                                          X███!\n");
+            printf("!█X                                                                           X▒█!\n");
+            printf("!▒}                                                                          X▒██!\n");
+            printf("!▒X                                                                          X███!\n");
+            printf("!█░                                                                          ░▒██!\n");
+            printf("!█X                                                                          ░▒██!\n");
+            printf("!█▒                                                                          ¶▒▒█!\n");
+            printf("!██¶.                                                                        ▒███!\n");
+            printf("!█▒▒▒                                                              '       ¶▒████!\n");
+            printf("!███▒▒                                                             |       ▒█████!\n");
+            printf("!█████▒.                               .                           u     ▒▒██████!\n");
+            break;
+    }
 }

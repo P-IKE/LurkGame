@@ -4,4 +4,6 @@
 /* std-msg-box */
 int useMessageBox(char* msgBoxText, char* msgBoxTitle);
 
+/* wall-gen */
+
 #endif
