@@ -5,5 +5,6 @@
 int useMessageBox(char* msgBoxText, char* msgBoxTitle);
 
 /* wall-gen */
+char caveDoor();
 
 #endif

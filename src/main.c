@@ -115,6 +115,12 @@ int main() {
 
         usleep(100000);
     }
+    // a strange knocking can be heard coming from a door in the cave wall
+    caveDoor();
+    printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+    printf("                                    ...                                          \n");
+    PlaySound(TEXT("sfx/DoorKnocking1.wav"), NULL, SND_FILENAME | SND_SYNC);
+
     printf("I am assuming success...");
     return 0;
 }
