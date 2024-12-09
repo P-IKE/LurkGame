@@ -7,4 +7,7 @@ int useMessageBox(char* msgBoxText, char* msgBoxTitle);
 /* wall-gen */
 char caveDoor();
 
+/* char-art */
+char lightRoom();
+
 #endif

@@ -22,6 +22,10 @@ char animatedCave(int frame);
 
 /* FUNCTIONS */
 
+void sysclear() {
+    system("clear"); // clear screen
+}
+
 char getch(void) {
     struct termios old = {0}, new_settings = {0};
     
@@ -59,6 +63,7 @@ char getch(void) {
 int main() {
     char response[4];
     bool start_game = false;
+    char user_nme[21];
 
     // formatted like so: msgBoxText, msgBoxTitle
     useMessageBox("Just to let you know, this is not the full game. I plan on eventually adding real graphics (probably in a language that is not C) but for now please enjoy the character art!", "Lurk Dev"); /* experimenting with message box, this function comes from std-msg-box.c */
@@ -93,7 +98,7 @@ int main() {
     PlaySound(TEXT("sfx/DrippyCave.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while(1){
         static int frame = 1;
-        system("clear");
+        sysclear();
         if (frame < 9){
             animatedCave(frame);
             btm_box_ln();
@@ -110,17 +115,26 @@ int main() {
         char ch = getch();
         if (ch == 'e') {
             PlaySound(NULL, NULL, SND_PURGE);
-            system("clear");
+            sysclear();
             break;
         }
 
         usleep(100000);
     }
-    // a strange knocking can be heard coming from a door in the cave
+    // cave door frame
     caveDoor();
     btm_box_ln();
     printf("                                    ...                                          \n");
     PlaySound(TEXT("sfx/DoorKnocking1.wav"), NULL, SND_FILENAME | SND_SYNC);
+    sysclear();
+    PlaySound(TEXT("sfx/MetalGate.wav"), NULL, SND_FILENAME | SND_SYNC);
+
+    // room with light
+    // assigning user input to user_nme
+    lightRoom();
+    printf("\n          please enter your name (max 20 chars): ");
+    scanf("%20s", &user_nme);
+    printf("%s", user_nme);
 
     printf("I am assuming success...");
     return 0;
