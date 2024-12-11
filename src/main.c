@@ -12,13 +12,17 @@
 /* -lwinmm (winmm.lib) is the sound library  */
 /* make sure that files are compiled together, example --> gcc main.c std-msg-box.c -o lurkgameexe -lwinmm */
 
-#define COLUMNS = 80
-#define ROWS = 25
-
 /* FUNCTION DECLARATIONS */
 char start_logo();
 char btm_box_ln();
 char animatedCave(int frame);
+
+struct userDetails{
+    char name[21];
+};
+
+int userMovement(int userX, int userY, int orientation, char term);
+void wallDir(int userX, int userY, int orientation);
 
 /* FUNCTIONS */
 
@@ -60,10 +64,38 @@ char getch(void) {
     return ch;
 }
 
+// This represents the game area
+
+int gameMap[21][21] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
+    {0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0},
+    {0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0},
+    {0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0},
+    {0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+    {0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+    {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0},
+    {0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0},
+    {0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0},
+    {0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0},
+    {0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0},
+    {0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0},
+    {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+
 int main() {
     char response[4];
     bool start_game = false;
     char user_nme[21];
+    int userX = 18, userY = 10, orientation = 1;
+    int npcX, npcY;
+    struct userDetails runTimeData;
 
     // formatted like so: msgBoxText, msgBoxTitle
     useMessageBox("Just to let you know, this is not the full game. I plan on eventually adding real graphics (probably in a language that is not C) but for now please enjoy the character art!", "Lurk Dev"); /* experimenting with message box, this function comes from std-msg-box.c */
@@ -127,14 +159,42 @@ int main() {
     printf("                                    ...                                          \n");
     PlaySound(TEXT("sfx/DoorKnocking1.wav"), NULL, SND_FILENAME | SND_SYNC);
     sysclear();
+    standardBox();
     PlaySound(TEXT("sfx/MetalGate.wav"), NULL, SND_FILENAME | SND_SYNC);
+    sysclear();
+    PlaySound(NULL, NULL, SND_PURGE);
 
     // room with light
     // assigning user input to user_nme
     lightRoom();
-    printf("\n          please enter your name (max 20 chars): ");
-    scanf("%20s", &user_nme);
-    printf("%s", user_nme);
+    printf("\nplease enter your name (max 20 chars):\n");
+    scanf("%20s", user_nme);
+    strcpy(runTimeData.name, user_nme);
+    printf("%s", runTimeData.name);
+
+    // ALL GAME INTERACTIONS SHOULD BE HELD IN HERE
+    while(1){
+        sysclear();
+        wallDir(userX, userY, orientation);
+        char ch = getch();
+        if (ch == 'd') {
+            orientation = userMovement(userX, userY, orientation, 'a'); // add to user orientation
+        } else if (ch == 'a') {
+            orientation = userMovement(userX, userY, orientation, 's'); // subtract from user orientation
+        } else if (ch == 'w') {
+            int actionW = userMovement(userX, userY, orientation, 'w');
+            switch(actionW){
+                case 1: // X
+                    userX = userMovement(userX, userY, orientation, 'x');
+                    break;
+                case 0: // Y
+                    userY = userMovement(userX, userY, orientation, 'y');
+                    break;
+            }
+        }
+
+        usleep(100000);
+    }
 
     printf("I am assuming success...");
     return 0;
@@ -149,6 +209,114 @@ char start_logo() {
 // bottom line for screen outline
 char btm_box_ln() {
     printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
+}
+
+int userMovement(int userX, int userY, int orientation, char term){
+    switch (term){
+        case 'a':
+            if(orientation == 4){
+                return 1;
+            } else {
+                return orientation + 1;
+            }
+            break;
+        case 's':
+            if(orientation == 1){
+                return 4;
+            } else {
+                return orientation - 1;
+            }
+            break;
+        case 'w':
+            if(orientation == 1 || orientation == 3){
+                return 1 ;
+            } else if(orientation == 2 || orientation == 4){
+                return 0;
+            }
+            break;
+        case 'x':
+            if(orientation == 1){
+                if(gameMap[userX-1][userY] != 0){
+                    return userX - 1;
+                } else {
+                    return userX;
+                }
+            } else if(orientation == 3){
+                if(gameMap[userX+1][userY] != 0){
+                    return userX + 1;
+                } else {
+                    return userX;
+                }
+            }
+            break;
+        case 'y':
+            if(orientation == 2){
+                if(gameMap[userX][userY+1] != 0){
+                    return userY + 1;
+                } else {
+                    return userY;
+                }
+            } else if(orientation == 4){
+                if(gameMap[userX][userY-1] != 0){
+                    return userY - 1;
+                } else {
+                    return userY;
+                }
+            }
+            break;
+    }
+}
+
+void wallDir(int userX, int userY, int orientation) {
+    int lft = 0, rght = 0, fwrd = 0;
+
+    switch (orientation){
+        case 1: // NORTH FACING
+            lft = gameMap[userX][userY - 1];
+            rght = gameMap[userX][userY + 1];
+            fwrd = gameMap[userX - 1][userY];
+            break;
+        case 2: // EAST FACING
+            lft = gameMap[userX - 1][userY];
+            rght = gameMap[userX + 1][userY];
+            fwrd = gameMap[userX][userY + 1];
+            break;
+        case 3: // SOUTH FACING
+            lft = gameMap[userX][userY + 1];
+            rght = gameMap[userX][userY - 1];
+            fwrd = gameMap[userX + 1][userY];
+            break;
+        case 4: // WEST FACING
+            lft = gameMap[userX + 1][userY];
+            rght = gameMap[userX - 1][userY];
+            fwrd = gameMap[userX][userY - 1];
+            break;
+        default:
+            sysclear();
+            printf("Orientation Error");
+            return;
+    }
+
+    if (lft == 1 && rght == 0 && fwrd == 0){
+        wallL(); // Left
+    } else if(lft == 0 && rght == 1 && fwrd == 0){
+        wallR(); // Right
+    } else if(lft == 0 && rght == 0 && fwrd == 1){
+        wallC(); // Front
+    } else if(lft == 1 && rght == 0 && fwrd == 1){
+        wallLC(); // Left & Front
+    } else if(lft == 0 && rght == 1 && fwrd == 1){
+        wallRC(); // Right & Front
+    } else if(lft == 1 && rght == 1 && fwrd == 0){
+        wallLR(); // Left & Right
+    } else if(lft == 1 && rght == 1 && fwrd == 1){
+        wallLRC(); // Left, Right, & Center
+    } else if(lft == 0 && rght == 0 && fwrd == 0){
+        wallEmpty();
+    } else {
+        sysclear();
+        printf("Wall Generation Error");
+    }
 }
 
 

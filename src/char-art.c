@@ -42,13 +42,13 @@ char lightRoom() {
     printf("!                 ||                  (   )                   ||                 !\n");
     printf("!                 ||                   '*'                    ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
+    printf("!                 ||      movement:                           ||                 !\n");
+    printf("!                 ||                    w                     ||                 !\n");
+    printf("!                 ||                  a s d                   ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
+    printf("!                 ||      other controls:                     ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
-    printf("!                 ||                                          ||                 !\n");
-    printf("!                 ||                                          ||                 !\n");
-    printf("!                 ||                                          ||                 !\n");
-    printf("!                 ||                                          ||                 !\n");
-    printf("!                 ||                                          ||                 !\n");
+    printf("!                 ||           give up - q                    ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
     printf("!                 ||                                          ||                 !\n");
