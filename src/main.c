@@ -296,6 +296,7 @@ int main() {
         char ch = getch();
         if (ch == 'q'){ // exit and end program when user presses 'q'
             PlaySound(NULL, NULL, SND_PURGE);
+            sysclear();
             break;
         }
     }
