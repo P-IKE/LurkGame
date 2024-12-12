@@ -214,6 +214,8 @@ int main() {
 
         if (userX - 2 == npcX && userY == npcY || userX + 2 == npcX && userY == npcY || userX == npcX && userY - 2 == npcY || userX == npcX && userY + 2 == npcY) {
             PlaySound(TEXT("sfx/ShortSteps.wav"), NULL, SND_FILENAME | SND_ASYNC); // Plays stepping sound if npc is 2 cells N S E W
+        } else if (userX - 2 == npcX && userY - 2 == npcY || userX + 2 == npcX && userY + 2 == npcY || userX + 2 == npcX && userY - 2 == npcY || userX + 2 == npcX && userY + 2 == npcY) {
+            PlaySound(TEXT("sfx/ShortSteps.wav"), NULL, SND_FILENAME | SND_ASYNC); // Plays stepping sound if npc is 2 cells NE SE SW NW
         }
 
         sysclear();
@@ -268,7 +270,8 @@ int main() {
     double elapsed_time = difftime(end_time, start_time);
 
     printf("\nElapsed Time: %.2lf\n", elapsed_time);
-    file_opener = fopen("score_keeper.txt", "w");
+    file_opener = fopen("score_keeper.txt", "w"); // Opens score file in write mode (this erases the contents of the file)
+
     if (file_opener == NULL) {
         printf("\nERROR OPENING SCORE FILE... score will not be recorded...\n");
     } else {
@@ -276,16 +279,29 @@ int main() {
             fprintf(file_opener, "%.2lf\n", elapsed_time);
             fprintf(file_opener, "%s", user_nme);
             printf("\nNew High Score - %s : %.2lf\n", user_nme, elapsed_time);
+            printf("\npress 'q' to exit...\n");
         } else if (highScore > elapsed_time) {
             fprintf(file_opener, "%.2lf\n", highScore);
             fprintf(file_opener, "%s", scoreName);
             printf("\nHigh Score - %s : %.2lf\n", scoreName, highScore);
+            printf("\npress 'q' to exit...\n");
         } else {
-            printf("...ERROR READ /OR/ WRITE SCORE DATA...");
+            printf("\n...ERROR READ /OR/ WRITE SCORE DATA...\n");
+            printf("\npress 'q' to exit...\n");
         }
     }
 
-    fclose(file_opener);
+    PlaySound(TEXT("sfx/CreepyAmbience.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    while(1){ // loop at the end of the program to prevent exiting before user sees score values
+        char ch = getch();
+        if (ch == 'q'){ // exit and end program when user presses 'q'
+            PlaySound(NULL, NULL, SND_PURGE);
+            sysclear();
+            break;
+        }
+    }
+
+    fclose(file_opener); // Closes score file
 
     return 0;
 }
@@ -301,7 +317,7 @@ char btm_box_ln() {
     printf("~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~\n");
 }
 
-int npcMovement(int userX, int userY, int npcX, int npcY, char axis){
+int npcMovement(int userX, int userY, int npcX, int npcY, char axis){ // This changes the npc pos depending on where the user is, moves toward the user pos
     switch (axis) {
         case 'x':
             if (npcX < userX /* && gameMap[npcX + 1][npcY] == 1*/) {
@@ -320,26 +336,26 @@ int npcMovement(int userX, int userY, int npcX, int npcY, char axis){
     }
 }
 
-int userMovement(int userX, int userY, int orientation, char term){
+int userMovement(int userX, int userY, int orientation, char term){ // Changes user pos values depending on the direction the user is facing
     switch (term){
-        case 'a':
+        case 'a': // determines clockwise orientation change
             if(orientation == 4){
                 return 1;
             } else {
                 return orientation + 1;
             }
             break;
-        case 's':
+        case 's': // determines counter-clockwise orientation change
             if(orientation == 1){
                 return 4;
             } else {
                 return orientation - 1;
             }
             break;
-        case 'w':
-            if(orientation == 1 || orientation == 3){
+        case 'w': // checks which axis the user is facing down
+            if(orientation == 1 || orientation == 3){ // N or S
                 return 1 ;
-            } else if(orientation == 2 || orientation == 4){
+            } else if(orientation == 2 || orientation == 4){ // E or W
                 return 0;
             }
             break;
