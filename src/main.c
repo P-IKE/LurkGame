@@ -9,9 +9,11 @@
 #include <termios.h>
 #include "headers.h"
 
-/*  Compile with gcc main.c -o main -lwinmm  */
-/* -lwinmm (winmm.lib) is the sound library  */
-/* make sure that files are compiled together, example --> gcc main.c std-msg-box.c -o lurkgameexe -lwinmm */
+/*  
+    Compile with gcc main.c std-msg-box.c wall-gen.c char-art.c -o lurkrun -lwinmm
+    -lwinmm (winmm.lib) is the sound library
+    make sure that files are compiled together, example --> gcc main.c std-msg-box.c -o lurkgameexe -lwinmm 
+*/
 
 /* FUNCTION DECLARATIONS */
 char start_logo();
@@ -99,6 +101,7 @@ int main() {
     double highScore;
     char scoreName[21];
 
+    // ckecking if score file exists & retrieving high score and name
     if (score_file == NULL) {
         printf("Score file could not be found...");
         highScore = 0;
@@ -108,10 +111,10 @@ int main() {
         fclose(score_file);
     }
 
+    bool start_game = false, skip_intro = false;
+    bool devModeOn = false;
     char response[4];
-    bool start_game = false;
     char user_nme[21];
-    bool skip_intro = false;
     struct userDetails runTimeData;
 
     // formatted like so: msgBoxText, msgBoxTitle
@@ -139,9 +142,10 @@ int main() {
             start_game = true;                   /*          Ends while loop                          */
         } else if (strcmp(response, "n") == 0){
             printf("\n... you don't really have any other option ...\n");
-        } else if (strcmp(response, "dm") == 0) {
+        } else if (strcmp(response, "dm") == 0) { // Option for dev mode which displays npc and user coordinates
             printf("\nYOU ARE IN DEV MODE\n");
             PlaySound(NULL, NULL, SND_PURGE);
+            devModeOn = true;
             start_game = true;
         } else if (strcmp(response, "s") == 0){ // skip intro sequence
             printf("\nskipping intro...\n");
@@ -209,18 +213,18 @@ int main() {
         static int userX = 18, userY = 10, orientation = 1;
 
         if (userX - 2 == npcX && userY == npcY || userX + 2 == npcX && userY == npcY || userX == npcX && userY - 2 == npcY || userX == npcX && userY + 2 == npcY) {
-            PlaySound(TEXT("sfx/ShortSteps.wav"), NULL, SND_FILENAME | SND_ASYNC);
+            PlaySound(TEXT("sfx/ShortSteps.wav"), NULL, SND_FILENAME | SND_ASYNC); // Plays stepping sound if npc is 2 cells N S E W
         }
 
         sysclear();
-        wallDir(userX, userY, orientation, npcX, npcY);
+        wallDir(userX, userY, orientation, npcX, npcY); // Call to wall generator for correct wall
         char ch = getch();
         if (ch == 'd') {
             orientation = userMovement(userX, userY, orientation, 'a'); // add to user orientation
         } else if (ch == 'a') {
             orientation = userMovement(userX, userY, orientation, 's'); // subtract from user orientation
         } else if (ch == 'w') {
-            int actionW = userMovement(userX, userY, orientation, 'w');
+            int actionW = userMovement(userX, userY, orientation, 'w'); // forward movement
             switch(actionW){
                 case 1: // X
                     userX = userMovement(userX, userY, orientation, 'x');
@@ -229,14 +233,14 @@ int main() {
                     userY = userMovement(userX, userY, orientation, 'y');
                     break;
             }
-        } else if (ch == 'q') {
+        } else if (ch == 'q') { // quit game if user presses q
             PlaySound(NULL, NULL, SND_PURGE);
             sysclear();
             printf("game quit...\n");
             break;
         }
 
-        if (npcTimer == 10) {
+        if (npcTimer == 10) { // Stops npc from advancing too fast
             npcX = npcMovement(userX, userY, npcX, npcY, 'x'); // x npc pos
             npcY = npcMovement(userX, userY, npcX, npcY, 'y'); // y npc pos
             npcTimer = 0;
@@ -244,15 +248,17 @@ int main() {
             npcTimer += 1;
         }
 
-        if (npcX == userX && npcY == userY) {
+        if (npcX == userX && npcY == userY) { // Checks if npc is in the same cell as user, ends game if so
             PlaySound(NULL, NULL, SND_PURGE);
             sysclear();
             printf("game over...\n");
             break;
         }
         
-        printf("NPC POS: [%d][%d]\n", npcX, npcY);
-        printf("USER POS: [%d][%d]\n", userX, userY);
+        if (devModeOn == true) { // If dev mode is on npc and user pos will be displayed
+            printf("NPC POS: [%d][%d]\n", npcX, npcY);
+            printf("USER POS: [%d][%d]\n", userX, userY);
+        }
 
         usleep(100000);
     }
