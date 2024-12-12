@@ -291,9 +291,11 @@ int main() {
         }
     }
 
+    PlaySound(TEXT("sfx/CreepyAmbience.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while(1){ // loop at the end of the program to prevent exiting before user sees score values
         char ch = getch();
         if (ch == 'q'){ // exit and end program when user presses 'q'
+            PlaySound(NULL, NULL, SND_PURGE);
             break;
         }
     }
