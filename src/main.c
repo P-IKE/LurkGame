@@ -37,39 +37,38 @@ void sysclear() {
 char getch(void) {
     struct termios old = {0}, new_settings = {0};
     
-    // Get the current terminal settings
+    // Get terminal settings
     if (tcgetattr(STDIN_FILENO, &old) < 0) {
         perror("tcgetattr() failed");
-        return -1; // Return an error value
+        return -1; // Returns error
     }
 
-    // Copy the terminal settings to modify them
+    // Copying the old terminal settings
     new_settings = old;
-    new_settings.c_lflag &= ~ICANON;  // Disable canonical mode (no need for pressing Enter)
-    new_settings.c_lflag &= ~ECHO;    // Disable echoing typed characters
-    new_settings.c_cc[VMIN] = 1;      // Minimum number of characters to read
-    new_settings.c_cc[VTIME] = 1;     // No timeout
+    new_settings.c_lflag &= ~ICANON;  // This makes it so you do not need to press enter
+    new_settings.c_lflag &= ~ECHO;    // Disables displaying characters typed into the terminal
+    new_settings.c_cc[VMIN] = 1;      // This is for the minimum character count
+    new_settings.c_cc[VTIME] = 1;     // Prevents timeout
     
-    // Set the terminal to the new settings
+    // Set new terminal settings
     if (tcsetattr(STDIN_FILENO, TCSANOW, &new_settings) < 0) {
         perror("tcsetattr() failed");
-        return -1; // Return an error value
+        return -1; // Returns error
     }
 
-    // Read a character from the terminal
+    // Read the character from user input
     char ch = getchar();
 
-    // Restore the old terminal settings (canonical mode and echoing)
+    // Restores the previous terminal settings
     if (tcsetattr(STDIN_FILENO, TCSADRAIN, &old) < 0) {
         perror("tcsetattr() failed to restore settings");
-        return -1; // Return an error value
+        return -1; // Returns error
     }
 
     return ch;
 }
 
 // This represents the game area
-
 int gameMap[21][21] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
